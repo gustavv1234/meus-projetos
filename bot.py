@@ -26,4 +26,4 @@ async def hello(ctx):
 async def good_night(ctx):
     await ctx.send("Estou funcionando!")
 
-bot.run('MTEyOTYxMzU5MDc0MDA3NDYxNw.G8vXvr.VPohVktpYEqWkZ-bH0c07pbikZ4qUeu_lGRByA')
+bot.run('code')
