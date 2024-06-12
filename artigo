@@ -1,0 +1,85 @@
+import math
+from collections import Counter, defaultdict
+
+class Node:
+    def __init__(self, attribute=None, classification=None):
+        self.attribute = attribute
+        self.classification = classification
+        self.children = {}
+
+def entropy(examples):
+    total = len(examples)
+    if total == 0:
+        return 0
+    counts = Counter(example['classification'] for example in examples)
+    return -sum((count / total) * math.log2(count / total) for count in counts.values())
+
+def best_attribute(examples, attributes):
+    base_entropy = entropy(examples)
+    best_gain = -1
+    best_attr = None
+    
+    for attr in attributes:
+        subsets = defaultdict(list)
+        for example in examples:
+            subsets[example[attr]].append(example)
+        
+        new_entropy = sum((len(subset) / len(examples)) * entropy(subset) for subset in subsets.values())
+        gain = base_entropy - new_entropy
+        
+        if gain > best_gain:
+            best_gain = gain
+            best_attr = attr
+            
+    return best_attr
+
+def all_same_classification(examples):
+    classifications = [example['classification'] for example in examples]
+    return len(set(classifications)) == 1
+
+def most_common_classification(examples):
+    return Counter(example['classification'] for example in examples).most_common(1)[0][0]
+
+def decision_tree_learning(examples, attributes, parent_examples=[]):
+    if not examples:
+        return Node(classification=most_common_classification(parent_examples))
+    elif all_same_classification(examples):
+        return Node(classification=examples[0]['classification'])
+    elif not attributes:
+        return Node(classification=most_common_classification(examples))
+    else:
+        best_attr = best_attribute(examples, attributes)
+        tree = Node(attribute=best_attr)
+        remaining_attributes = [attr for attr in attributes if attr != best_attr]
+        
+        subsets = defaultdict(list)
+        for example in examples:
+            subsets[example[best_attr]].append(example)
+        
+        for value, subset in subsets.items():
+            subtree = decision_tree_learning(subset, remaining_attributes, examples)
+            tree.children[value] = subtree
+            
+        return tree
+
+def print_tree(node, level=0):
+    if node.classification is not None:
+        print('  ' * level + 'Class:', node.classification)
+    else:
+        print('  ' * level + 'Attribute:', node.attribute)
+        for value, child in node.children.items():
+            print('  ' * (level + 1) + 'Value:', value)
+            print_tree(child, level + 2)
+
+# Example usage
+examples = [
+    {'attribute1': '0', 'attribute2': '1', 'classification': 'A'},
+    {'attribute1': '1', 'attribute2': '0', 'classification': 'B'},
+    {'attribute1': '1', 'attribute2': '1', 'classification': 'A'},
+    {'attribute1': '0', 'attribute2': '0', 'classification': 'B'},
+]
+
+attributes = ['attribute1', 'attribute2']
+
+root = decision_tree_learning(examples, attributes)
+print_tree(root)
