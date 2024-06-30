@@ -1,0 +1,25 @@
+import java.util.Scanner;
+
+public class MediaCalculator {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("Quantos números você quer inserir?");
+        int quantidadeNumeros = scanner.nextInt();
+        
+        double soma = 0;
+        
+        for (int i = 1; i <= quantidadeNumeros; i++) {
+            System.out.println("Insira o número " + i + ":");
+            double numero = scanner.nextDouble();
+            soma += numero;
+        }
+        
+        double media = soma / quantidadeNumeros;
+        
+        System.out.println("A média dos números inseridos é: " + media);
+        
+        scanner.close();
+    }
+}
